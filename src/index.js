@@ -30,7 +30,10 @@
   };
   const tileValColor = (val, index) => {
     if (val === '0') {
-      return index + ((index % game.world.columns * 2) > game.world.columns ? 1 : 0) % 2 === 0 ? "#e6e6ff": "#fff";
+      return (index + (index % (game.world.columns * 2) < game.world.columns ? 1 : 0) )% 2 === 0 ? "#e6e6ff": "#fff";
+    }
+    if (val === "b") {
+      return "#94F191"
     }
     return "#b4b5fe" ;
   };
@@ -52,6 +55,13 @@
 
       this.buffer.fillStyle = game.player.color;
       this.buffer.fillRect(
+        game.player.x,
+        game.player.y,
+        game.player.width,
+        game.player.height
+      );
+      this.buffer.strokeStyle = "#aa0000"
+      this.buffer.strokeRect(
         game.player.x,
         game.player.y,
         game.player.width,
@@ -87,23 +97,24 @@
       display.render();
     }
   };
-  const playerSize = 11;
+  const playerSize = 23;
   game = {
     /* This is the player object. Make sure to note that for this collision method
     to work, you must record the current and last positions of your game objects
     to use in collision detection. It is used to calculate the vector used to determine
     if an object is entering into a collision tile and from what side. */
     player: {
-      color: "#ff9900",
+      color: "#f00",
+      stroke: "#000",
       height: playerSize,
       old_x: 160, // these are what you should take note of. Don't worry, it's useful
       old_y: 160, // to keep track of old positions for many physics methods. These aren't one trick pony's.
-      speed: 3,
+      speed: 1.875,
       velocity_x: 0,
       velocity_y: 0,
       width: playerSize,
-      x: 160 - 16,
-      y: 100 - 16,
+      x: 75 - playerSize,
+      y: 75 - playerSize,
 
       // These functions just make it easy to read the collision code
       get bottom() {
@@ -227,6 +238,7 @@
         }
         this.bottomCollision(object, row); // No need to early out on the last check.
       },
+      b: (a,b,c) => {return; },
 
       /* Here are the narrow phase collision detection and response functions.
       For a deeper insight into how these work, and what's going on, I'm using
@@ -506,8 +518,8 @@
     }
   };
 
-  display.buffer.canvas.height = 200;
-  display.buffer.canvas.width = 320;
+  display.buffer.canvas.height = 450;
+  display.buffer.canvas.width = 800;
 
   window.addEventListener("resize", display.resize);
   window.addEventListener("keydown", controller.keyUpDown);
@@ -519,15 +531,17 @@
   // 5 is a solid block/box tile
   // 4 is a floor tile
   const mapStr = `
-11111000000001111111
-2000311111111a000003
-20006000000000080003
-20006000000000060003
-20006000000000060003
-20007000000000060003
-20000094444444420003
-14444410000000014441
+111111111111111111
+2bbb3111111a00bbb3
+2bbb6000000008bbb3
+2bbb6000000006bbb3
+2bbb6000000006bbb3
+2bbb6000000006bbb3
+2bbb7000000006bbb3
+2bbb0094444442bbb3
+144444111111114441
 `;
+  display.buffer.lineWidth = 3;
   const map = mapStr
     .slice(1, -1)
     .replace(/\n/g, "")
@@ -535,7 +549,7 @@
   game.world = Object.assign(game.world, {
     columns: mapStr.split("\n")[1].length,
     rows: 5,
-    tile_size: 15,
+    tile_size: 34.17,
     map
   });
   game.loop();
